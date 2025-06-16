@@ -22,7 +22,7 @@ services:
       - db
   migration:
     image: pygoat/pygoat
-    command: python pygoat/manage.py migrate --noinput
+    command: python manage.py migrate
     volumes:
       - .:/app
     depends_on:

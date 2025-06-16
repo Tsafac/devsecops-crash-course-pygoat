@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pygoat-deployment
+spec:
+  replicas: 3 # You can adjust the number of replicas as needed
+  selector:
+    matchLabels:
+      app: pygoat
+  template:
+    metadata:
+      labels:
+        app: pygoat
+    spec:
+      containers:
+        - name: pygoat
+          image: leberi/pygoat:latest # Replace with the actual image tag
+          ports:
+            - containerPort: 5000 # Replace with the port your Tetris game listens on

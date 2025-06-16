@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pygoat-deployment
+spec:
+  replicas: 3  # Number of desired replicas
+  selector:
+    matchLabels:
+      app: pygoat
+  template:
+    metadata:
+      labels:
+        app: pygoat
+    spec:
+      containers:
+      - name: pygoat
+        image: leberi/pygoat:latest
+        ports:
+        - containerPort: 5000
