@@ -1,0 +1,20 @@
+name: PyGoat
+
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: installer docker et docker compose
+        run: | 
+          chmod +x scripts/docker_install.sh
+          ./scripts/docker_install.sh
+
+      - name: Test my app
+        run: docker build -t PyGoat-test .
+        run: docker run PyGoat-test pytest
+
+
