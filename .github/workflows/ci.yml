@@ -14,7 +14,8 @@ jobs:
           ./scripts/docker_install.sh
 
       - name: Test my app
-        run: docker build -t PyGoat-test .
-        run: docker run PyGoat-test pytest
+        run: | 
+          docker build -t PyGoat-test .
+          docker run PyGoat-test pytest
 
 
