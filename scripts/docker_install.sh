@@ -29,4 +29,4 @@ sudo apt-get install ./docker-desktop-amd64.deb
 echo " verification"
 
 docker --version
-docker-compose --version
+docker compose version
