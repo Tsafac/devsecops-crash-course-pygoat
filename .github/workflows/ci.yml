@@ -15,7 +15,7 @@ jobs:
 
       - name: Test my app
         run: | 
-          docker build -t PyGoat-test .
-          docker run PyGoat-test pytest
+          docker build -t pygoat-test .
+          docker run pygoat-test pytest
 
 
