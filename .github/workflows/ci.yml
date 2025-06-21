@@ -22,7 +22,7 @@ jobs:
 
       - name: terraform fmt
         run: |
-          terraform fmt -check -diff -recursive EKS-Terraform > fmt-report.txt || echo "No formatting issues detected." > fmt-report.txt
+          terraform fmt -check -diff -recursive EKS-Terraform 
 
 
       - name: terraform validate
