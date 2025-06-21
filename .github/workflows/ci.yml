@@ -2,6 +2,29 @@ name: PyGoat
 
 on: [push, pull_request]
 jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: lint terraform files
+        uses: terraform-linters/setup-tflint@v4
+      - run: tflint -recursive
+
+      - name: terraform fmt
+        run: terraform fmt -check -recursive
+
+      - name: terraform validate
+        run: terraform validate
+
+      - name: install kube-linter
+        run: |
+          curl -s https://raw.githubusercontent.com/stackrox/kube-linter/main/install.sh | bash
+          sudo mv kube-linter /usr/local/bin/
+      
+      - name: lint kubernetes manifests
+        run: kube-linter lint ./manifests
+
   test:
     runs-on: ubuntu-latest
 
