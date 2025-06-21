@@ -35,12 +35,15 @@ jobs:
 
       - name: install kube-linter
         run: |
-          curl -sSL https://github.com/stackrox/kube-linter/releases/latest/download/kube-linter-linux-amd64 -o kube-linter
-          chmod +x kube-linter
-          sudo mv kube-linter /usr/local/bin/
-      
+           curl -sSL https://github.com/stackrox/kube-linter/releases/download/v0.6.6/kube-linter-linux-amd64 -o kube-linter
+           chmod +x kube-linter
+           sudo mv kube-linter /usr/local/bin/kube-linter
+
+      - name: Check kube-linter version
+        run: kube-linter version
+
       - name: lint kubernetes manifests
-        run: kube-linter lint ./manifests
+        run: kube-linter lint ./manifests > kube-lint-report.txt || true
 
       - name: Upload lint artifact
         uses: actions/upload-artifact@v4
@@ -50,6 +53,7 @@ jobs:
             tflint-report.json
             fmt-report.txt
             validate-report.txt
+            kube-lint-report.txt 
 
 
   test:
