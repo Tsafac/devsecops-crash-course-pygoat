@@ -13,7 +13,7 @@ jobs:
           tflint_version: v0.47.0
       - name: check terraform file 
         run: |
-          tflint --format=json EKS-Terraform > tflint-report.json || true
+          tflint --format=json --chdir=EKS-Terraform > tflint-report.json || true
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
@@ -22,7 +22,7 @@ jobs:
 
       - name: terraform fmt
         run: |
-          terraform fmt  EKS-Terraform -check -diff -recursive > fmt-report.txt || true
+          terraform fmt -check -diff -recursive EKS-Terraform > fmt-report.txt || true
 
 
       - name: terraform validate
