@@ -9,7 +9,15 @@ jobs:
 
       - name: lint terraform files
         uses: terraform-linters/setup-tflint@v4
-      - run: tflint --chdir=EKS-Terraform
+        with:
+          version: v0.47.0
+      - name: check terraform file 
+        run: tflint --chdir=EKS-Terraform
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.5.7
 
       - name: terraform fmt
         run: terraform fmt --check --chdir=EKS-Terraform
