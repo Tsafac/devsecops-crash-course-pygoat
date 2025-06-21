@@ -68,20 +68,20 @@ jobs:
             kube-lint-report.txt 
             checkov-report.json 
 
-sast:
-  runs-on: ubuntu-latest
-  needs: lint
+  sast:
+    runs-on: ubuntu-latest
+    needs: lint
 
-  steps:
-    - uses: actions/checkout@v4
-      with:
+    steps:
+      - uses: actions/checkout@v4
+        with:
         fetch-depth: 0
 
-    - name: SonarQube Scan
-      uses: SonarSource/sonarqube-scan-action@v4 
-      env:
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        SONAR_HOST_URL: ${{ vars.SONAR_HOST_URL }}
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v4 
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ vars.SONAR_HOST_URL }}
 
 
   test:
