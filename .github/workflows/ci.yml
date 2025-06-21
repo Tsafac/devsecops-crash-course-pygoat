@@ -24,7 +24,7 @@ jobs:
         run: |
            terraform fmt -check -diff -recursive EKS-Terraform > fmt-report.txt
            if [ ! -s fmt-report.txt ]; then
-           echo "✅ Aucun problème de format détecté dans les fichiers Terraform." > fmt-report.txt
+           echo "Aucun problème de format détecté dans les fichiers Terraform." > fmt-report.txt
            fi
 
 
@@ -68,10 +68,25 @@ jobs:
             kube-lint-report.txt 
             checkov-report.json 
 
+SAST:
+  runs-on: ubuntu-latest
+  needs: lint
+
+  steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: SonarQube Scan
+      uses: SonarSource/sonarqube-scan-action@v4 
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        SONAR_HOST_URL: ${{ vars.SONAR_HOST_URL }}
+
 
   test:
     runs-on: ubuntu-latest
-    needs: lint
+    needs: SAST
 
     steps:
       - uses: actions/checkout@v4
