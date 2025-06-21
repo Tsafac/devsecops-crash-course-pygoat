@@ -39,12 +39,16 @@ jobs:
             tar -xzf kube-linter.tar.gz
             chmod +x kube-linter
             sudo mv kube-linter /usr/local/bin/kube-linter
-            
+
       - name: Check kube-linter version
         run: kube-linter version
 
       - name: lint kubernetes manifests
         run: kube-linter lint ./manifests > kube-lint-report.txt || true
+
+      - name: Debug:list reports
+        run: ls -lh *.txt *.json || true
+
 
       - name: Upload lint artifact
         uses: actions/upload-artifact@v4
