@@ -46,7 +46,7 @@ jobs:
 
       - name: push to docker hub
         run: | 
-          docker push pygoat-prod
+          docker push pygoat-prod:latest
 
 
   
