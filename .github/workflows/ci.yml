@@ -13,8 +13,7 @@ jobs:
           tflint_version: v0.47.0
       - name: check terraform file 
         run: |
-          cd EKS-Terraform
-          tflint --format=json > tflint-report.json || true
+          tflint --format=json --chdir=EKS-Terraform > tflint-report.json || true
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
@@ -23,14 +22,12 @@ jobs:
 
       - name: terraform fmt
         run: |
-          cd EKS-Terraform
-          terraform fmt -check -diff -recursive > fmt-report.txt || true
+          terraform fmt -check -diff -recursive --chdir=EKS-Terraform > fmt-report.txt || true
 
 
       - name: terraform validate
         run: |
-          cd EKS-Terraform
-          terraform init --backend=false > init-report.txt || true
+          terraform init --backend=false --chdir=EKS-Terraform  > init-report.txt || true
           terraform validate > validate-report.txt || true
 
       - name: install kube-linter
