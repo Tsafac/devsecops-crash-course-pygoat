@@ -20,7 +20,7 @@ jobs:
           terraform_version: 1.5.7
 
       - name: terraform fmt
-        run: terraform fmt --check --chdir=EKS-Terraform
+        run: terraform fmt -check --chdir=EKS-Terraform
 
       - name: terraform validate
         run: |
