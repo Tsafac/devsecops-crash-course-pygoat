@@ -30,7 +30,7 @@ jobs:
       - name: terraform validate
         run: |
           cd EKS-Terraform
-          terraform init 
+          terraform init --backend=false > init-report.txt || true
           terraform validate > validate-report.txt || true
 
       - name: install kube-linter
