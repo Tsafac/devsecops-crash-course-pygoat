@@ -68,7 +68,7 @@ jobs:
             kube-lint-report.txt 
             checkov-report.json 
 
-SAST:
+sast:
   runs-on: ubuntu-latest
   needs: lint
 
