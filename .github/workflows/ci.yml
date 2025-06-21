@@ -12,7 +12,9 @@ jobs:
         with:
           version: v0.47.0
       - name: check terraform file 
-        run: tflint --chdir=EKS-Terraform
+        run: |
+          cd EKS-Terraform
+          tflint 
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
