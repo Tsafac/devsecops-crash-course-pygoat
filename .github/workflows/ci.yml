@@ -9,13 +9,15 @@ jobs:
 
       - name: lint terraform files
         uses: terraform-linters/setup-tflint@v4
-      - run: tflint -recursive
+      - run: tflint --chdir=EKS-Terraform
 
       - name: terraform fmt
-        run: terraform fmt -check -recursive
+        run: terraform fmt --check --chdir=EKS-Terraform
 
       - name: terraform validate
-        run: terraform validate
+        run: |
+          terraform init --chdir=EKS-Terraform
+          terraform validate --chdir=EKS-Terraform
 
       - name: install kube-linter
         run: |
@@ -25,8 +27,10 @@ jobs:
       - name: lint kubernetes manifests
         run: kube-linter lint ./manifests
 
+
   test:
     runs-on: ubuntu-latest
+    needs: lint
 
     steps:
       - uses: actions/checkout@v4
