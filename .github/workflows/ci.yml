@@ -13,7 +13,7 @@ jobs:
           tflint_version: v0.47.0
       - name: check terraform file 
         run: |
-          tflint --format=json --chdir=EKS-Terraform > tflint-report.json || true
+          tflint --format=json -d EKS-Terraform > tflint-report.json || true
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
@@ -22,12 +22,12 @@ jobs:
 
       - name: terraform fmt
         run: |
-          terraform --chdir=EKS-Terraform fmt -check -diff -recursive > fmt-report.txt || true
+          terraform fmt  -d EKS-Terraform -check -diff -recursive > fmt-report.txt || true
 
 
       - name: terraform validate
         run: |
-          terraform --chdir=EKS-Terraform init --backend=false > init-report.txt || true
+          terraform init -d EKS-Terraform --backend=false > init-report.txt || true
           terraform validate > validate-report.txt || true
 
       - name: install checkov
