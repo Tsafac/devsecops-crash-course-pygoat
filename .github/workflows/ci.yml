@@ -22,12 +22,12 @@ jobs:
 
       - name: terraform fmt
         run: |
-          terraform fmt -check -diff -recursive --chdir=EKS-Terraform > fmt-report.txt || true
+          terraform --chdir=EKS-Terraform fmt -check -diff -recursive > fmt-report.txt || true
 
 
       - name: terraform validate
         run: |
-          terraform init --backend=false --chdir=EKS-Terraform  > init-report.txt || true
+          terraform --chdir=EKS-Terraform init --backend=false > init-report.txt || true
           terraform validate > validate-report.txt || true
 
       - name: install kube-linter
