@@ -82,6 +82,11 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ vars.SONAR_HOST_URL }}
+        with:
+          projectKey: ${{ vars.SONAR_PROJECT_KEY }}
+          projectName: ${{ vars.SONAR_PROJECT_NAME }}
+          projectVersion: ${{ github.sha }}
+          
 
 
   test:
