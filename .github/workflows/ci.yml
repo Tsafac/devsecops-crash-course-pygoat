@@ -10,7 +10,7 @@ jobs:
       - name: lint terraform files
         uses: terraform-linters/setup-tflint@v4
         with:
-          version: v0.47.0
+          tflint_version: v0.47.0
       - name: check terraform file 
         run: |
           cd EKS-Terraform
@@ -24,7 +24,7 @@ jobs:
       - name: terraform fmt
         run: |
           cd EKS-Terraform
-          terraform fmt -check 
+          terraform fmt -check -diff -recursive
 
       - name: terraform validate
         run: |
