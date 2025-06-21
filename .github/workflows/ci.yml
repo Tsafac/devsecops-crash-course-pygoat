@@ -20,12 +20,15 @@ jobs:
           terraform_version: 1.5.7
 
       - name: terraform fmt
-        run: terraform fmt -check --chdir=EKS-Terraform
+        run: |
+          cd EKS-Terraform
+          terraform fmt -check 
 
       - name: terraform validate
         run: |
-          terraform init --chdir=EKS-Terraform
-          terraform validate --chdir=EKS-Terraform
+          cd EKS-Terraform
+          terraform init 
+          terraform validate 
 
       - name: install kube-linter
         run: |
