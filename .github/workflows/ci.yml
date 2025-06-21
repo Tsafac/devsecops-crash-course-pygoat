@@ -30,6 +30,13 @@ jobs:
           terraform --chdir=EKS-Terraform init --backend=false > init-report.txt || true
           terraform validate > validate-report.txt || true
 
+      - name: install checkov
+        run: pip install checkov
+
+      - name: run checkov on terraform
+        run: checkov -d EKS-Terraform -o json > checkov-report.json || true
+
+
       - name: install kube-linter
         run: |
             curl -sSL -o kube-linter.tar.gz https://github.com/stackrox/kube-linter/releases/download/v0.6.6/kube-linter-linux.tar.gz
@@ -56,6 +63,7 @@ jobs:
             fmt-report.txt
             validate-report.txt
             kube-lint-report.txt 
+            checkov-report.json 
 
 
   test:
