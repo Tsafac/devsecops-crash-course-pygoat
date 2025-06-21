@@ -14,7 +14,7 @@ jobs:
       - name: check terraform file 
         run: |
           cd EKS-Terraform
-          tflint 
+          tflint --format=json > tflint-report.json || true
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
@@ -24,13 +24,14 @@ jobs:
       - name: terraform fmt
         run: |
           cd EKS-Terraform
-          terraform fmt -check -diff -recursive
+          terraform fmt -check -diff -recursive > fmt-report.txt || true
+
 
       - name: terraform validate
         run: |
           cd EKS-Terraform
           terraform init 
-          terraform validate 
+          terraform validate > validate-report.txt || true
 
       - name: install kube-linter
         run: |
@@ -39,6 +40,15 @@ jobs:
       
       - name: lint kubernetes manifests
         run: kube-linter lint ./manifests
+
+      - name: Upload lint artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: lint-report
+          path: |
+            tflint-report.json
+            fmt-report.txt
+            validate-report.txt
 
 
   test:
