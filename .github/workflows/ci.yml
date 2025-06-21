@@ -22,7 +22,10 @@ jobs:
 
       - name: terraform fmt
         run: |
-          terraform fmt -check -diff -recursive EKS-Terraform 
+           terraform fmt -check -diff -recursive EKS-Terraform > fmt-report.txt
+           if [ ! -s fmt-report.txt ]; then
+           echo "✅ Aucun problème de format détecté dans les fichiers Terraform." > fmt-report.txt
+           fi
 
 
       - name: terraform validate
