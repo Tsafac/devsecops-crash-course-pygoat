@@ -97,7 +97,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - nane: install dependencies
+      - name: install dependencies
         run: |
           pip install -r requirements.txt
 
