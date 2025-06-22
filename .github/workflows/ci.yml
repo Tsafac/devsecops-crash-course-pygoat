@@ -120,6 +120,11 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      - name: Download HTML template
+        run: |
+          curl -o trivy-html.tmpl https://raw.githubusercontent.com/khulnasoft-lab/trivy-html-template/main/trivy-html.tmpl
+
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/Trivy-action@master
         with:
@@ -127,7 +132,8 @@ jobs:
           scan-ref: .
           severity: 'HIGH,CRITICAL'
           ignore-unfixed: true
-          format: 'html'
+          format: 'template'
+          template: "@/github/workspace/trivy-html.tmpl"
           output: 'trivy-report.html'
           exit-code: 0
       - name: Upload Trivy vulnerability report
@@ -149,6 +155,10 @@ jobs:
           chmod +x scripts/docker_install.sh
           ./scripts/docker_install.sh
 
+      - name: Download HTML template
+        run: |
+          curl -o trivy-html.tmpl https://raw.githubusercontent.com/khulnasoft-lab/trivy-html-template/main/trivy-html.tmpl
+
       - name: Build Docker Image
         run: | 
           docker build -t pygoat:latest .
@@ -161,7 +171,8 @@ jobs:
         with:
           image-ref: pygoat:latest
           severity: HIGH,CRITICAL
-          format: 'html'
+          format: 'template'
+          template: "@/github/workspace/trivy-html.tmpl"
           ignore-unfixed: true
           output: 'trivy-image-report.html'
           exit-code: 0
