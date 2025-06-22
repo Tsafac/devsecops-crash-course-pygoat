@@ -201,31 +201,31 @@ jobs:
      runs-on: ubuntu-latest
      needs: build_and_sca_image
 
-  steps:
-    - uses: actions/checkout@v4
+     steps:
+       - uses: actions/checkout@v4
 
     
-    - name: Upload manifests via SCP
-      uses: appleboy/scp-action@master
-      with:
-        host: ${{ secrets.HOST }}
-        username: ${{ secrets.USERNAME_HOST }}
-        key: ${{ secrets.SSH_KEY }}
-        port: ${{ secrets.PORT }}
-        source: "manifests/app-deploy.yaml,manifests/app-svc.yaml"
-        target: "/home/control-plane/manifests"
+       - name: Upload manifests via SCP
+         uses: appleboy/scp-action@master
+         with:
+           host: ${{ secrets.HOST }}
+           username: ${{ secrets.USERNAME_HOST }}
+           key: ${{ secrets.SSH_KEY }}
+           port: ${{ secrets.PORT }}
+           source: "manifests/app-deploy.yaml,manifests/app-svc.yaml"
+           target: "/home/control-plane/manifests"
 
     
-    - name: Apply manifests via SSH
-      uses: appleboy/ssh-action@master
-      with:
-        host: ${{ secrets.HOST }}
-        username: ${{ secrets.USERNAME_HOST }}
-        key: ${{ secrets.SSH_KEY }}
-        port: ${{ secrets.PORT }}
-        script: |
-          kubectl apply -f /home/control-plane/manifests/app-deploy.yaml
-          kubectl apply -f /home/control-plane/manifests/app-svc.yaml
+       - name: Apply manifests via SSH
+         uses: appleboy/ssh-action@master
+         with:
+           host: ${{ secrets.HOST }}
+           username: ${{ secrets.USERNAME_HOST }}
+           key: ${{ secrets.SSH_KEY }}
+           port: ${{ secrets.PORT }}
+           script: |
+             kubectl apply -f /home/control-plane/manifests/app-deploy.yaml
+             kubectl apply -f /home/control-plane/manifests/app-svc.yaml
 
 
 
