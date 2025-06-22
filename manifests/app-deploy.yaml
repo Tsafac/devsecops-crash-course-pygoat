@@ -18,5 +18,5 @@ spec:
         - name: pygoat
           image: leberi/pygoat:latest
           ports:
-            - containerPort: 5000
+            - containerPort: 8000
 
