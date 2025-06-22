@@ -88,32 +88,53 @@ jobs:
             -Dsonar.projectName=${{ vars.SONAR_PROJECT_NAME }}
             -Dsonar.projectVersion=${{ github.sha }}
           
+  tests:
+     runs-on: ubuntu-latest 
+     needs: sast
+
+     steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - nane: install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Test my app
+        run: |
+         pytest
+         python manage.py test
 
 
-  test:
+  sca_dependancies:
     runs-on: ubuntu-latest
-    needs: SAST
+    needs: tests
 
     steps:
       - uses: actions/checkout@v4
-
-      - name: installer docker et docker compose
-        run: | 
-          chmod +x scripts/docker_install.sh
-          ./scripts/docker_install.sh
-
-      - name: Test my app
-        run: | 
-          docker build -t pygoat-test .
-          docker run pygoat-test pytest
-          docker ps -a 
-          docker rm $(docker ps -a -q)
-
+        with:
+          fetch-depth: 0
+      - name: Run Trivy vulnerability scanner
+        uses: actions/Trivy-actions@0.28.0
+        with:
+          scan-type: 'fs'
+          scan-ref: .
+          severity: 'HIGH,CRITICAL'
+          ignore-unfixed: true
+          format: 'html'
+          output: 'trivy-report.html'
+          exit-code: 0
+      - name: Upload Trivy vulnerability report
+        uses: actions/upload-artifact@v4
+        with:
+          name: trivy-report
+          path: trivy-report.html
 
   
   build:
     runs-on: ubuntu-latest
-    needs: test
+    needs: sca_dependancies
 
     steps:
       - uses: actions/checkout@v4
@@ -123,9 +144,27 @@ jobs:
           chmod +x scripts/docker_install.sh
           ./scripts/docker_install.sh
 
-      - name: Build my app
+      - name: Build Docker Image
         run: | 
-          docker build -t pygoat-prod .
+          docker build -t pygoat:latest .
+          docker run pygoat:latest 
+          docker ps -a 
+          docker ps -aq | xargs -r docker rm
+
+      - name: Scan Docker Image
+        uses: actions/trivy-action@0.28.0
+        with:
+          image-ref: pygoat:latest
+          severity: HIGH,CRITICAL
+          format: 'html'
+          ignore-unfixed: true
+          output: 'trivy-image-report.html'
+          exit-code: 0
+      - name: Upload Trivy image report
+        uses: actions/upload-artifact@v4
+        with:
+          name: trivy-image-report
+          path: trivy-image-report.html
       
       - name: login to docker hub
         uses: docker/login-action@v2
@@ -134,8 +173,11 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: push to docker hub
+        if: success()
         run: | 
-          docker push pygoat-prod:latest 
+          docker tag pygoat:latest ${{ secrets.DOCKER_USERNAME }}/pygoat:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/pygoat:latest
+
 
 
   
