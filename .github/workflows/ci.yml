@@ -133,7 +133,7 @@ jobs:
           severity: 'HIGH,CRITICAL'
           ignore-unfixed: true
           format: template
-          template: ./trivy-html.tmpl
+          template: trivy-html.tmpl
           output: 'trivy-report.html'
           exit-code: 0
       - name: Upload Trivy vulnerability report
@@ -172,7 +172,7 @@ jobs:
           image-ref: pygoat:latest
           severity: HIGH,CRITICAL
           format: template
-          template: ./trivy-html.tmpl
+          template: trivy-html.tmpl
           ignore-unfixed: true
           output: 'trivy-image-report.html'
           exit-code: 0
