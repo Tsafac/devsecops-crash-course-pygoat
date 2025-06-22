@@ -121,7 +121,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/Trivy-action@v0.28.0
+        uses: aquasecurity/Trivy-action@master
         with:
           scan-type: 'fs'
           scan-ref: .
@@ -157,7 +157,7 @@ jobs:
           docker ps -aq | xargs -r docker rm
 
       - name: Scan Docker Image
-        uses: aquasecurity/trivy-action@v0.28.0
+        uses: aquasecurity/trivy-action@master
         with:
           image-ref: pygoat:latest
           severity: HIGH,CRITICAL
