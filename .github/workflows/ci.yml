@@ -224,7 +224,7 @@ jobs:
            key: ${{ secrets.SSH_KEY }}
            port: ${{ secrets.PORT }}
            script: |
-             cd /home/control-plane/manifests
+             cd /home/control-plane/manifests/manifests
              kubectl apply -f app-deploy.yaml
              kubectl apply -f app-svc.yaml
 
