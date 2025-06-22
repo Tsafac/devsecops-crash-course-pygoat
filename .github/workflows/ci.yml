@@ -123,7 +123,8 @@ jobs:
 
       - name: Download HTML template
         run: |
-          curl -o trivy-html.tmpl https://raw.githubusercontent.com/khulnasoft-lab/trivy-html-template/main/trivy-html.tmpl
+          curl -o html.tpl https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/html.tpl
+
 
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/Trivy-action@master
@@ -133,7 +134,7 @@ jobs:
           severity: 'HIGH,CRITICAL'
           ignore-unfixed: true
           format: template
-          template: trivy-html.tmpl
+          template: ./html.tmpl
           output: 'trivy-report.html'
           exit-code: 0
       - name: Upload Trivy vulnerability report
@@ -157,14 +158,16 @@ jobs:
 
       - name: Download HTML template
         run: |
-          curl -o trivy-html.tmpl https://raw.githubusercontent.com/khulnasoft-lab/trivy-html-template/main/trivy-html.tmpl
+          curl -o html.tpl https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/html.tpl
+
 
       - name: Build Docker Image
         run: | 
           docker build -t pygoat:latest .
-          docker run pygoat:latest 
-          docker ps -a 
-          docker ps -aq | xargs -r docker rm
+          docker run -d --rm --name pygoat -p 8000:8000 pygoat:latest
+          sleep 10
+          docker logs pygoat
+          docker stop pygoat
 
       - name: Scan Docker Image
         uses: aquasecurity/trivy-action@master
@@ -172,7 +175,7 @@ jobs:
           image-ref: pygoat:latest
           severity: HIGH,CRITICAL
           format: template
-          template: trivy-html.tmpl
+          template: ./html.tmpl
           ignore-unfixed: true
           output: 'trivy-image-report.html'
           exit-code: 0
