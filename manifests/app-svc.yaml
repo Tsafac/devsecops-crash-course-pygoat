@@ -5,9 +5,11 @@ metadata:
 spec:
   selector:
     app: pygoat
+  type: NodePort
   ports:
     - protocol: TCP
-      port: 5000
-      targetPort: 8000
-  type: NodePort
+      port: 5000          
+      targetPort: 8000    
+      nodePort: 32383     
+
 
