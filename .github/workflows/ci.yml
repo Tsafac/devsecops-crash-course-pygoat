@@ -134,7 +134,7 @@ jobs:
           severity: 'HIGH,CRITICAL'
           ignore-unfixed: true
           format: template
-          template: "@html.tmpl"
+          template: "@html.tpl"
           output: 'trivy-fs-report.html'
           exit-code: 0
       - name: Upload Trivy vulnerability report
@@ -175,7 +175,7 @@ jobs:
           image-ref: pygoat:latest
           severity: HIGH,CRITICAL
           format: template
-          template: "@html.tmpl"
+          template: "@html.tpl"
           ignore-unfixed: true
           output: 'trivy-image-report.html'
           exit-code: 0
@@ -196,6 +196,9 @@ jobs:
         run: | 
           docker tag pygoat:latest ${{ secrets.DOCKER_USERNAME }}/pygoat:latest
           docker push ${{ secrets.DOCKER_USERNAME }}/pygoat:latest
+
+
+  
 
 
 
