@@ -224,6 +224,8 @@ jobs:
            key: ${{ secrets.SSH_KEY }}
            port: ${{ secrets.PORT }}
            script: |
+             kubectl delete -f app-deploy.yaml
+             kubectl delete -f app-svc.yaml
              cd /home/control-plane/manifests/manifests
              kubectl apply -f app-deploy.yaml
              kubectl apply -f app-svc.yaml
