@@ -134,14 +134,14 @@ jobs:
           severity: 'HIGH,CRITICAL'
           ignore-unfixed: true
           format: template
-          template: ./html.tmpl
-          output: 'trivy-report.html'
+          template: "@html.tmpl"
+          output: 'trivy-fs-report.html'
           exit-code: 0
       - name: Upload Trivy vulnerability report
         uses: actions/upload-artifact@v4
         with:
-          name: trivy-report
-          path: trivy-report.html
+          name: trivy-fs-report
+          path: trivy-fs-report.html
 
   
   build_and_sca_image:
@@ -175,7 +175,7 @@ jobs:
           image-ref: pygoat:latest
           severity: HIGH,CRITICAL
           format: template
-          template: ./html.tmpl
+          template: "@html.tmpl"
           ignore-unfixed: true
           output: 'trivy-image-report.html'
           exit-code: 0
