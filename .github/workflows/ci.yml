@@ -213,7 +213,7 @@ jobs:
            key: ${{ secrets.SSH_KEY }}
            port: ${{ secrets.PORT }}
            source: "manifests/app-deploy.yaml,manifests/app-svc.yaml"
-           target: "/home/control-plane/manifests"
+           target: "/home/ubuntu/manifests"
 
     
        - name: Apply manifests via SSH
