@@ -251,7 +251,7 @@ jobs:
               key: ${{ secrets.SSH_KEY }}
               port: ${{ secrets.PORT }}
               source: "scripts/docker_install.sh"
-              target: "/home/ubuntu/docker_install.sh"
+              target: "/home/ubuntu/"
 
           - name: Run Zap Scan
             uses: appleboy/ssh-action@master
@@ -263,7 +263,7 @@ jobs:
               script: |
                 chmod +x /home/ubuntu/docker_install.sh
                 bash /home/ubuntu/docker_install.sh
-                mkdir /home/ubuntu/zap
+                mkdir -p /home/ubuntu/zap
                 cd /home/ubuntu/zap
                 docker run --rm -v $(pwd):/zap/wrk owasp/zap2docker-stable zap-full-scan.py \
                 -t ${{ secrets.TARGET_URL }} \
@@ -295,7 +295,7 @@ jobs:
               port: ${{ secrets.PORT }}
               script: |
                 rm -rf /home/ubuntu/zap
-                rm -f /scripts/docker_install.sh
+                rm -f /home/ubuntu/docker_install.sh
                 sudo systemctl stop docker || true
                 sudo systemctl disable docker || true
                 sudo apt-get purge -y docker-ce docker-ce-cli docker-buildx-plugin docker-compose-plugin
