@@ -262,7 +262,7 @@ jobs:
               port: ${{ secrets.PORT }}
               script: |
                 chmod +x scripts/docker_install.sh
-                ./scripts/docker_install.sh
+                bash /home/ubuntu/docker_install.sh
                 mkdir /home/ubuntu/zap
                 cd /home/ubuntu/zap
                 docker run --rm -v $(pwd):/zap/wrk owasp/zap2docker-stable zap-full-scan.py \
