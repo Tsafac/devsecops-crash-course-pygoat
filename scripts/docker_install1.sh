@@ -1,5 +1,6 @@
 #!/bin/bash
 set -e
+export DEBIAN_FRONTEND=noninteractive
 
 echo "📦 Mise à jour des paquets"
 sudo apt-get update -y
@@ -19,7 +20,7 @@ echo \
 sudo apt-get update -y
 
 echo "🐳 Installation de Docker (sans containerd)"
-sudo apt-get install -y docker-ce docker-ce-cli docker-buildx-plugin docker-compose-plugin
+sudo apt-get install -y docker-ce docker-ce-cli docker-buildx-plugin docker-compose-plugin --no-install-recommends
 
 echo "✅ Docker installé avec succès :"
-docker --version || { echo "❌ Docker non trouvé dans le PATH"; exit 1; }
+sudo docker --version || { echo "❌ Docker non trouvé dans le PATH"; exit 1; }
