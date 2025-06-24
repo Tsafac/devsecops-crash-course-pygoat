@@ -224,12 +224,92 @@ jobs:
            key: ${{ secrets.SSH_KEY }}
            port: ${{ secrets.PORT }}
            script: |
-             kubectl delete deployment pygoat-deployment
-             kubectl delete service pygoat-service
+             kubectl delete deployment pygoat-deployment || true
+             kubectl delete service pygoat-service || true
              cd /home/ubuntu/manifests/manifests
              kubectl apply -f app-deploy.yaml
              kubectl apply -f app-svc.yaml
+             sleep 10
+             kubectl get pods -o wide
+             kubectl get svc
 
+  dast:
+        needs: deploy_on_k8s
+        runs-on: ubuntu-latest
+        
+        steps:
+          - name: checkout code
+            uses: actions/checkout@v4
+            with:
+              fetch-depth: 0
+
+          - name: Copy Docker Install
+            uses: appleboy/scp-action@master
+            with:
+              host: ${{ secrets.HOST }}
+              username: ${{ secrets.USERNAME_HOST }}
+              key: ${{ secrets.SSH_KEY }}
+              port: ${{ secrets.PORT }}
+              source: "installer.sh"
+              target: "/home/ubuntu/installer.sh"
+
+          - name: Run Zap Scan
+            uses: appleboy/ssh-action@master
+            with:
+              host: ${{ secrets.HOST }}
+              username: ${{ secrets.USERNAME_HOST }}
+              key: ${{ secrets.SSH_KEY }}
+              port: ${{ secrets.PORT }}
+              script: |
+                chmod +x /home/ubuntu/installer.sh
+                bash /home/ubuntu/installer.sh
+                mkdir /home/ubuntu/zap
+                cd /home/ubuntu/zap
+                docker run --rm -v $(pwd):/zap/wrk owasp/zap2docker-stable zap-full-scan.py \
+                -t ${{ secrets.TARGET_URL }} \
+                -r rapport_zap.html \
+                -a
+
+          - name: Download Zap Report
+            uses: appleboy/scp-action@master
+            with:
+              host: ${{ secrets.HOST }}
+              username: ${{ secrets.USERNAME_HOST }}
+              key: ${{ secrets.SSH_KEY }}
+              port: ${{ secrets.PORT }}
+              source: "/home/ubuntu/zap/rapport_zap.html"
+              target: "./rapport_zap.html"
+            
+          - name: Upload Zap artifact
+            uses: actions/upload-artifact@v4
+            with:
+               name: Zap-report
+               path: rapport_zap.html
+
+          - name: Uninstall docker
+            uses: appleboy/ssh-action@master
+            with:
+              host: ${{ secrets.HOST }}
+              username: ${{ secrets.USERNAME_HOST }}
+              key: ${{ secrets.SSH_KEY }}
+              port: ${{ secrets.PORT }}
+              script: |
+                rm -rf /home/ubuntu/zap
+                rm -f /home/ubuntu/installer.sh
+                sudo systemctl stop docker || true
+                sudo systemctl disable docker || true
+                sudo apt-get purge -y docker-ce docker-ce-cli docker-buildx-plugin docker-compose-plugin
+                sudo rm -rf /var/lib/docker
+                sudo rm -rf /etc/docker
+                echo "Docker a été désinstallé proprement."
+
+
+
+                  
+          
+
+                 
+              
 
 
 
