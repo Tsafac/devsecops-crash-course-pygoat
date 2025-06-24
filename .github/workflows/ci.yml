@@ -261,7 +261,7 @@ jobs:
               key: ${{ secrets.SSH_KEY }}
               port: ${{ secrets.PORT }}
               script: |
-                chmod +x scripts/docker_install.sh
+                chmod +x /home/ubuntu/docker_install.sh
                 bash /home/ubuntu/docker_install.sh
                 mkdir /home/ubuntu/zap
                 cd /home/ubuntu/zap
