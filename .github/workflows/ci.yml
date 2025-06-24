@@ -251,7 +251,7 @@ jobs:
               key: ${{ secrets.SSH_KEY }}
               port: ${{ secrets.PORT }}
               source: "scripts/docker_install.sh"
-              target: "/scripts/docker_install.sh"
+              target: "/home/ubuntu/docker_install.sh"
 
           - name: Run Zap Scan
             uses: appleboy/ssh-action@master
