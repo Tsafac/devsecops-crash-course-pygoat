@@ -243,16 +243,6 @@ jobs:
             with:
               fetch-depth: 0
 
-          - name: Copy Docker Install
-            uses: appleboy/scp-action@master
-            with:
-              host: ${{ secrets.HOST }}
-              username: ${{ secrets.USERNAME_HOST }}
-              key: ${{ secrets.SSH_KEY }}
-              port: ${{ secrets.PORT }}
-              source: "scripts/docker_install1.sh"
-              target: "/home/ubuntu/"
-
           - name: Run Zap Scan
             uses: appleboy/ssh-action@master
             with:
@@ -261,8 +251,6 @@ jobs:
               key: ${{ secrets.SSH_KEY }}
               port: ${{ secrets.PORT }}
               script: |
-                chmod +x /home/ubuntu/scripts/docker_install1.sh
-                bash /home/ubuntu/scripts/docker_install1.sh
                 mkdir -p /home/ubuntu/zap
                 cd /home/ubuntu/zap
                 docker run --rm -v $(pwd):/zap/wrk owasp/zap2docker-stable zap-full-scan.py \
@@ -286,22 +274,7 @@ jobs:
                name: Zap-report
                path: rapport_zap.html
 
-          - name: Uninstall docker
-            uses: appleboy/ssh-action@master
-            with:
-              host: ${{ secrets.HOST }}
-              username: ${{ secrets.USERNAME_HOST }}
-              key: ${{ secrets.SSH_KEY }}
-              port: ${{ secrets.PORT }}
-              script: |
-                rm -rf /home/ubuntu/zap
-                rm -f /home/ubuntu/scripts/docker_install1.sh
-                sudo systemctl stop docker || true
-                sudo systemctl disable docker || true
-                sudo apt-get purge -y docker-ce docker-ce-cli docker-buildx-plugin docker-compose-plugin
-                sudo rm -rf /var/lib/docker
-                sudo rm -rf /etc/docker
-                echo "Docker a été désinstallé proprement."
+         
 
 
 
