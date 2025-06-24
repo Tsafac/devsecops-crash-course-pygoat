@@ -250,7 +250,7 @@ jobs:
               username: ${{ secrets.USERNAME_HOST }}
               key: ${{ secrets.SSH_KEY }}
               port: ${{ secrets.PORT }}
-              source: "/scripts/docker_install.sh"
+              source: "scripts/docker_install.sh"
               target: "/scripts/docker_install.sh"
 
           - name: Run Zap Scan
