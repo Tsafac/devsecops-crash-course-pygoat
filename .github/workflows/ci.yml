@@ -267,14 +267,14 @@ jobs:
               key: ${{ secrets.SSH_KEY }}
               port: ${{ secrets.PORT }}
               script: |
-                echo "📂 Listing du dossier contenant le rapport ZAP :"
-                ls -lh /home/ubuntu/zap-reports
+                echo "Listing du dossier contenant le rapport ZAP :"
+                ls -lh /home/ubuntu/zap
 
                 echo "🔍 Vérification de l'existence du fichier zap-report.html :"
-                if [ -f /home/ubuntu/zap-reports/zap-report.html ]; then
-                  echo "✅ Le fichier existe et est prêt à être transféré."
+                if [ -f /home/ubuntu/zap/zap-report.html ]; then
+                  echo "Le fichier existe et est prêt à être transféré."
                 else
-                  echo "❌ Le fichier n'existe pas, vérifie le chemin dans 'source:'"
+                  echo "Le fichier n'existe pas, vérifie le chemin dans 'source:'"
                  exit 1
                 fi
 
