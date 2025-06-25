@@ -261,25 +261,25 @@ jobs:
                 ls -la /home/ubuntu/zap/ 
 
 
-          - name: Créer le fichier clé SSH (key.pem)
+          - name: Create the SSH key file (key.pem)
             run: |
               echo "${{ secrets.SSH_KEY }}" > key.pem
               chmod 600 key.pem
 
 
 
-          - name: Télécharger zap-report.tar.gz avec scp
+          - name: Download ZAP report archive via SCP
             run: |
              scp -o StrictHostKeyChecking=no -i key.pem -P ${{ secrets.PORT }} \
                ${{ secrets.USERNAME_HOST }}@${{ secrets.HOST }}:/home/ubuntu/zap/zap-report.tar.gz .
 
-          - name: Vérifier le fichier téléchargé
+          - name: Verify the downloaded file
             run: |
               ls -la
               file zap-report.tar.gz
               tar -tzf zap-report.tar.gz
 
-          - name: Décompresser le rapport ZAP
+          - name: Extract the ZAP report
             run: tar -xzf zap-report.tar.gz
 
           - name: Upload Zap artifact
@@ -288,7 +288,7 @@ jobs:
               name: Zap-report
               path: zap-report.html
 
-          - name: Supprimer la clé temporaire
+          - name: Delete the temporary key
             run: rm -f key.pem
 
 
