@@ -286,7 +286,7 @@ jobs:
               username: ${{ secrets.USERNAME_HOST }}
               key: ${{ secrets.SSH_KEY }}
               port: ${{ secrets.PORT }}
-              source: /home/ubuntu/zap/zap-report.html
+              source: "~/zap/zap-report.html"
               target: "./"
             
           - name: Upload Zap artifact
