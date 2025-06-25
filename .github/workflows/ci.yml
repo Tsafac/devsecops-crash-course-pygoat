@@ -264,14 +264,13 @@ jobs:
               key: ${{ secrets.SSH_KEY }}
               port: ${{ secrets.PORT }}
               source: "/home/ubuntu/zap/zap-report.html"
-              target: "./zap-report.html"
+              target: "zap-report.html"
             
           - name: Upload Zap artifact
             uses: actions/upload-artifact@v4
             with:
                name: Zap-report
                path: zap-report.html
-
          
 
 
