@@ -257,26 +257,8 @@ jobs:
                 docker run --rm --network zapnet -v $(pwd):/zap/wrk ghcr.io/zaproxy/zaproxy:weekly /zap/zap-baseline.py -t ${{ secrets.TARGET_URL }} -r zap-report.html || true
                 docker network rm zapnet || true
                 ls -l /home/ubuntu/zap
+                tar -czf /home/ubuntu/zap/zap-report.tar.gz -C /home/ubuntu/zap zap-report.html
 
-
-          - name: Vérifier si le rapport ZAP existe sur le serveur
-            uses: appleboy/ssh-action@master
-            with:
-              host: ${{ secrets.HOST }}
-              username: ${{ secrets.USERNAME_HOST }}
-              key: ${{ secrets.SSH_KEY }}
-              port: ${{ secrets.PORT }}
-              script: |
-                echo "Listing du dossier contenant le rapport ZAP :"
-                ls -lh /home/ubuntu/zap
-
-                echo "🔍 Vérification de l'existence du fichier zap-report.html :"
-                if [ -f /home/ubuntu/zap/zap-report.html ]; then
-                  echo "Le fichier existe et est prêt à être transféré."
-                else
-                  echo "Le fichier n'existe pas, vérifie le chemin dans 'source:'"
-                 exit 1
-                fi
 
 
           - name: Download Zap Report
@@ -286,8 +268,11 @@ jobs:
               username: ${{ secrets.USERNAME_HOST }}
               key: ${{ secrets.SSH_KEY }}
               port: ${{ secrets.PORT }}
-              source: "~/zap/zap-report.html"
+              source: "/home/ubuntu/zap/zap-report.tar.gz"
               target: "./"
+
+          - name: Décompresser le rapport ZAP
+            run: tar -xzf zap-report.tar.gz
             
           - name: Upload Zap artifact
             uses: actions/upload-artifact@v4
