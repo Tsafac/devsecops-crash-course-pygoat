@@ -262,35 +262,25 @@ jobs:
 
 
 
-          - name: Download Zap Report
-            uses: appleboy/scp-action@master
-            with:
-              host: ${{ secrets.HOST }}
-              username: ${{ secrets.USERNAME_HOST }}
-              key: ${{ secrets.SSH_KEY }}
-              port: ${{ secrets.PORT }}
-              source: "/home/ubuntu/zap/zap-report.tar.gz"
-              target: "./"
-              rm: true
+          - name: Télécharger zap-report.tar.gz avec scp
+            run: |
+             scp -o StrictHostKeyChecking=no -i key.pem -P ${{ secrets.PORT }} \
+               ${{ secrets.USERNAME_HOST }}@${{ secrets.HOST }}:/home/ubuntu/zap/zap-report.tar.gz .
 
           - name: Vérifier le fichier téléchargé
             run: |
               ls -la
               file zap-report.tar.gz
-
-
+              tar -tzf zap-report.tar.gz
 
           - name: Décompresser le rapport ZAP
-            run: |
-              mkdir -p report
-              tar -xzf zap-report.tar.gz -C report || echo "Échec de décompression"
-              ls -la report/
-            
+            run: tar -xzf zap-report.tar.gz
+
           - name: Upload Zap artifact
             uses: actions/upload-artifact@v4
             with:
-               name: Zap-report
-               path: report/zap-report.html
+              name: Zap-report
+              path: zap-report.html
          
 
 
