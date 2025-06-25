@@ -253,11 +253,9 @@ jobs:
               script: |
                 mkdir -p /home/ubuntu/zap
                 cd /home/ubuntu/zap 
+                docker network create zapnet || true
                 docker run --rm --network zapnet -v $(pwd):/zap/wrk ghcr.io/zaproxy/zaproxy:weekly /zap/zap-baseline.py -t ${{ secrets.TARGET_URL }} -r zap-report.html || true
-                sleep 30
-                docker stop $(docker ps -q) || true
-                docker rm $(docker ps -a -q) || true
-                
+
           - name: Download Zap Report
             uses: appleboy/scp-action@master
             with:
@@ -265,14 +263,14 @@ jobs:
               username: ${{ secrets.USERNAME_HOST }}
               key: ${{ secrets.SSH_KEY }}
               port: ${{ secrets.PORT }}
-              source: "/home/ubuntu/zap/rapport_zap.html"
-              target: "./rapport_zap.html"
+              source: "/home/ubuntu/zap/zap-report.html"
+              target: "./zap-report.html"
             
           - name: Upload Zap artifact
             uses: actions/upload-artifact@v4
             with:
                name: Zap-report
-               path: rapport_zap.html
+               path: zap-report.html
 
          
 
