@@ -256,8 +256,9 @@ jobs:
                 docker network create zapnet || true
                 docker run --rm --network zapnet -v $(pwd):/zap/wrk ghcr.io/zaproxy/zaproxy:weekly /zap/zap-baseline.py -t ${{ secrets.TARGET_URL }} -r zap-report.html || true
                 docker network rm zapnet || true
-                ls -l /home/ubuntu/zap
-                tar -czf /home/ubuntu/zap/zap-report.tar.gz -C /home/ubuntu/zap zap-report.html
+                while [ ! -f /home/ubuntu/zap/zap-report.html ]; do sleep 1; done
+                tar -czf /home/ubuntu/zap/zap-report.tar.gz zap-report.html
+                ls -la /home/ubuntu/zap/ 
 
 
 
@@ -270,15 +271,26 @@ jobs:
               port: ${{ secrets.PORT }}
               source: "/home/ubuntu/zap/zap-report.tar.gz"
               target: "./"
+              rm: true
+
+          - name: Vérifier le fichier téléchargé
+            run: |
+              ls -la
+              file zap-report.tar.gz
+
+
 
           - name: Décompresser le rapport ZAP
-            run: tar -xzf zap-report.tar.gz
+            run: |
+              mkdir -p report
+              tar -xzf zap-report.tar.gz -C report || echo "Échec de décompression"
+              ls -la report/
             
           - name: Upload Zap artifact
             uses: actions/upload-artifact@v4
             with:
                name: Zap-report
-               path: zap-report.html
+               path: report/zap-report.html
          
 
 
