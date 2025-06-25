@@ -256,8 +256,28 @@ jobs:
                 docker network create zapnet || true
                 docker run --rm --network zapnet -v $(pwd):/zap/wrk ghcr.io/zaproxy/zaproxy:weekly /zap/zap-baseline.py -t ${{ secrets.TARGET_URL }} -r zap-report.html || true
                 docker network rm zapnet || true
-                sleep 10
                 ls -l /home/ubuntu/zap
+
+
+          - name: Vérifier si le rapport ZAP existe sur le serveur
+            uses: appleboy/ssh-action@master
+            with:
+              host: ${{ secrets.HOST }}
+              username: ${{ secrets.USERNAME_HOST }}
+              key: ${{ secrets.SSH_KEY }}
+              port: ${{ secrets.PORT }}
+              script: |
+                echo "📂 Listing du dossier contenant le rapport ZAP :"
+                ls -lh /home/ubuntu/zap-reports
+
+                echo "🔍 Vérification de l'existence du fichier zap-report.html :"
+                if [ -f /home/ubuntu/zap-reports/zap-report.html ]; then
+                  echo "✅ Le fichier existe et est prêt à être transféré."
+                else
+                  echo "❌ Le fichier n'existe pas, vérifie le chemin dans 'source:'"
+                 exit 1
+                fi
+
 
           - name: Download Zap Report
             uses: appleboy/scp-action@master
