@@ -261,6 +261,12 @@ jobs:
                 ls -la /home/ubuntu/zap/ 
 
 
+          - name: Créer le fichier clé SSH (key.pem)
+            run: |
+              echo "${{ secrets.SSH_KEY }}" > key.pem
+              chmod 600 key.pem
+
+
 
           - name: Télécharger zap-report.tar.gz avec scp
             run: |
@@ -281,7 +287,9 @@ jobs:
             with:
               name: Zap-report
               path: zap-report.html
-         
+
+          - name: Supprimer la clé temporaire
+            run: rm -f key.pem
 
 
 
