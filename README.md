@@ -1,67 +1,74 @@
 # PyGoat - Pipeline CI/CD DevSecOps (Projet de pratique)
 
 **Contexte**  
-Ce projet est basé sur l’application **PyGoat** (une application web Django volontairement vulnérable pour pratiquer les vulnérabilités OWASP Top 10).  
-Je l’ai utilisé comme **base d’apprentissage** pour concevoir et tester un **pipeline CI/CD sécurisé**.
+Ce projet est basé sur l’application **PyGoat** (une application Django volontairement vulnérable pour pratiquer les vulnérabilités OWASP Top 10).  
+Je l’ai utilisé comme **base d’apprentissage** pour concevoir et tester un **pipeline CI/CD sécurisé** **de bout en bout**.
 
 ---
 
 ## 🚀 Objectif
 
 Mettre en place un pipeline **GitHub Actions** complet pour :
-- **Linting** : Vérifier la qualité des fichiers Terraform et Kubernetes.
+- **Linting & IaC Security** : Vérifier la qualité des fichiers Terraform et Kubernetes avec `tflint`, `kube-linter` et **Checkov**.
 - **Build & Deploy** : Déployer l’application sur un cluster **Kubernetes**.
 - **Tests de sécurité automatisés** :
   - **SAST** : Analyse statique via **SonarQube**
-  - **SCA** : Scan des dépendances via **Trivy**
+  - **SCA** : Scan des dépendances et de l’image Docker via **Trivy**
   - **DAST** : Tests dynamiques via **OWASP ZAP**
-  - **IaC Security** : Contrôle de la sécurité Infrastructure as Code avec **Checkov**
-- **Reporting** : Génération de rapports à chaque étape du pipeline.
+- **Reporting** : Génération de rapports de vulnérabilités après chaque run.
 
 ---
 
 ## ⚙️ Technologies utilisées
 
-- **GitHub Actions** pour l’automatisation CI/CD
-- **Terraform** pour la gestion de l’infrastructure
-- **Kubernetes** pour l’orchestration
-- **SonarQube**, **Trivy**, **OWASP ZAP**, **Checkov** pour la sécurité
-- **Docker** pour le packaging de l’application
+- **GitHub Actions** (CI/CD)
+- **Terraform**, **Checkov**
+- **Kubernetes**, **kube-linter**
+- **SonarQube**, **Trivy**, **OWASP ZAP**
+- **Docker**
 
 ---
 
-## 📂 Structure du projet
+## 🗂️ Structure du projet
 
-- `/ci` : fichiers de configuration GitHub Actions
-- `/terraform` : fichiers Terraform pour provisionner l’infrastructure
+- `/ci` : fichiers workflows GitHub Actions
+- `/terraform` : fichiers Terraform (provisionning EKS ou cluster K8s)
 - `/k8s` : manifests Kubernetes
-- `/reports` : exemples de rapports générés
+- `/reports` : exemples de rapports (lint, checkov, SAST, SCA, DAST)
 
 ---
 
-## 📈 Résultat
+## ✅ Résultat
 
-Grâce à ce pipeline, chaque commit déclenche :
-- Un linting automatique
-- Une build et un déploiement sur Kubernetes
-- Des scans de sécurité automatisés
-- Une génération de rapports de vulnérabilités
+Chaque push ou pull request déclenche :
+- Lint & audit IaC automatiques
+- Build & push de l’image Docker après scan sécurité
+- Déploiement automatique sur Kubernetes
+- Scan dynamique OWASP ZAP en conteneur isolé
+- Stockage des rapports en artefacts
 
-Cela m’a permis de **pratiquer concrètement le « Shift Left Security »**, en intégrant la sécurité **dès le développement**, jusqu’au déploiement Cloud.
+Cela me permet de pratiquer le **« Shift Left Security »** **réellement**, du code jusqu’au cluster Cloud.
+
+
+## 🎓 Certifications
+
+- **Certified Kubernetes Administrator (CKA)**
+- **AWS Solutions Architect Associate**
+- **Cisco Ethical Hacker**
 
 ---
 
 ## 👨‍💻 Crédits
 
-L’application **PyGoat** originale est développée par [adeyosemanputra](https://github.com/adeyosemanputra/pygoat) et la communauté.  
-Ce fork est utilisé **à but pédagogique**, pour expérimenter un pipeline **CI/CD DevSecOps**.
+L’application **PyGoat** est développée par [adeyosemanputra](https://github.com/adeyosemanputra/pygoat).  
+Ce fork est **uniquement à but pédagogique** pour démontrer un pipeline **CI/CD DevSecOps** automatisé.
 
 ---
 
-## 📌 Liens utiles
+## 📌 Liens
 
 - Repo original : [PyGoat](https://github.com/adeyosemanputra/pygoat)
-- Mon LinkedIn : www.linkedin.com/in/fabrice-tsafack
+- Mon LinkedIn : [www.linkedin.com/in/fabrice-tsafack](https://www.linkedin.com/in/fabrice-tsafack)
 - Contact : ronicefabrice@gmail.com
 
 ---
@@ -69,4 +76,4 @@ Ce fork est utilisé **à but pédagogique**, pour expérimenter un pipeline **C
 ## 📢 Licence
 
 Usage uniquement à des fins d’entraînement et de démonstration.  
-Toutes contributions open source restent les bienvenues !
+Contributions open source toujours les bienvenues !
