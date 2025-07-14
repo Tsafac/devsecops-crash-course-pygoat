@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: pygoat
-          image: leberi/pygoat:latest
+          image: leberi/pygoat:TAG_PLACEHOLDER
           imagePullPolicy: Always
           command: ["gunicorn"]
           args: ["--bind", "0.0.0.0:8000", "pygoat.wsgi:application"]

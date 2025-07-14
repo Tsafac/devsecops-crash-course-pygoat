@@ -1,8 +1,14 @@
 name: PyGoat
 
-on: [push, pull_request]
+on: 
+  push:
+    branches:
+      - staging
+      - main
+  
 jobs:
   lint:
+    if: github.ref == 'refs/heads/staging'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -69,6 +75,7 @@ jobs:
             checkov-report.json 
 
   sast:
+    if: github.ref == 'refs/heads/staging'
     runs-on: ubuntu-latest
     needs: lint
 
@@ -89,6 +96,7 @@ jobs:
             -Dsonar.projectVersion=${{ github.sha }}
           
   tests:
+     if: github.ref == 'refs/heads/staging'
      runs-on: ubuntu-latest 
      needs: sast
 
@@ -113,6 +121,7 @@ jobs:
 
 
   sca_dependancies:
+    if: github.ref == 'refs/heads/staging'
     runs-on: ubuntu-latest
     needs: tests
 
@@ -145,6 +154,7 @@ jobs:
 
   
   build_and_sca_image:
+    if: github.ref == 'refs/heads/staging'
     runs-on: ubuntu-latest
     needs: sca_dependancies
 
@@ -163,8 +173,8 @@ jobs:
 
       - name: Build Docker Image
         run: | 
-          docker build -t pygoat:latest .
-          docker run -d --rm --name pygoat -p 8000:8000 pygoat:latest
+          docker build -t pygoat:staging-${{github.sha}} .
+          docker run -d --rm --name pygoat -p 8000:8000 pygoat:staging-${{github.sha}}
           sleep 10
           docker logs pygoat
           docker stop pygoat
@@ -172,7 +182,7 @@ jobs:
       - name: Scan Docker Image
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: pygoat:latest
+          image-ref: pygoat:staging-${{github.sha}}
           severity: HIGH,CRITICAL
           format: template
           template: "@html.tpl"
@@ -194,10 +204,11 @@ jobs:
       - name: push to docker hub
         if: success()
         run: | 
-          docker tag pygoat:latest ${{ secrets.DOCKER_USERNAME }}/pygoat:latest
-          docker push ${{ secrets.DOCKER_USERNAME }}/pygoat:latest
+          docker tag pygoat:staging-${{github.sha}} ${{ secrets.DOCKER_USERNAME }}/pygoat:staging-${{github.sha}}
+          docker push ${{ secrets.DOCKER_USERNAME }}/pygoat:staging-${{github.sha}}
 
-  deploy_on_k8s:
+  deploy_staging:
+     if: github.ref == 'refs/heads/staging'
      runs-on: ubuntu-latest
      needs: build_and_sca_image
 
@@ -224,17 +235,20 @@ jobs:
            key: ${{ secrets.SSH_KEY }}
            port: ${{ secrets.PORT }}
            script: |
-             kubectl delete deployment pygoat-deployment || true
-             kubectl delete service pygoat-service || true
+             kubectl delete deployment pygoat-deployment -n staging|| true
+             kubectl delete service pygoat-service -n staging|| true
              cd /home/ubuntu/manifests/manifests
-             kubectl apply -f app-deploy.yaml
-             kubectl apply -f app-svc.yaml
+             kubectl create ns staging || true
+             sed -i "s|\${{ github.sha }}|${{ github.sha }}|g" manifests/app-deploy.yaml
+             kubectl apply -f app-deploy.yaml -n staging
+             kubectl apply -f app-svc.yaml -n staging
              sleep 10
              kubectl get pods -o wide
              kubectl get svc
 
   dast:
-        needs: deploy_on_k8s
+        if: github.ref == 'refs/heads/staging'
+        needs: deploy_staging
         runs-on: ubuntu-latest
         
         steps:
@@ -291,7 +305,58 @@ jobs:
           - name: Delete the temporary key
             run: rm -f key.pem
 
+  promote:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    needs: []
 
+    steps:
+      - name: Pull Docker Image
+        run: |
+          docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+          docker pull ${{ secrets.DOCKER_USERNAME }}/pygoat:staging-${{github.sha}}
+          docker tag ${{ secrets.DOCKER_USERNAME }}/pygoat:staging-${{github.sha}} pygoat:prod-${{github.sha}}
+          docker push ${{ secrets.DOCKER_USERNAME }}/pygoat:prod-${{github.sha}}
+        
+
+  deploy_prod:
+     if: github.ref == 'refs/heads/main'
+     runs-on: ubuntu-latest
+     needs: promote
+
+     steps:
+       - uses: actions/checkout@v4
+
+    
+       - name: Upload manifests via SCP
+         uses: appleboy/scp-action@master
+         with:
+           host: ${{ secrets.HOST }}
+           username: ${{ secrets.USERNAME_HOST }}
+           key: ${{ secrets.SSH_KEY }}
+           port: ${{ secrets.PORT }}
+           source: "manifests/app-deploy.yaml,manifests/app-svc.yaml"
+           target: "/home/ubuntu/manifests"
+
+    
+       - name: Apply manifests via SSH
+         uses: appleboy/ssh-action@master
+         with:
+           host: ${{ secrets.HOST }}
+           username: ${{ secrets.USERNAME_HOST }}
+           key: ${{ secrets.SSH_KEY }}
+           port: ${{ secrets.PORT }}
+           script: |
+             kubectl delete deployment pygoat-deployment -n prod|| true
+             kubectl delete service pygoat-service -n prod || true
+             cd /home/ubuntu/manifests/manifests
+             kubectl create ns prod || true
+             sed -i "s|staging-\${{ github.sha }}|prod-${{ github.sha }}|g" manifests/app-deploy.yaml
+             kubectl apply -f app-deploy.yaml -n prod
+             kubectl apply -f app-svc.yaml -n prod
+             sleep 10
+             kubectl get pods -o wide
+             kubectl get svc
 
                   
           
