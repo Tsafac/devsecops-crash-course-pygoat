@@ -1,79 +1,99 @@
-# PyGoat - Pipeline CI/CD DevSecOps (Projet de pratique)
 
-**Contexte**  
-Ce projet est basé sur l’application **PyGoat** (une application Django volontairement vulnérable pour pratiquer les vulnérabilités OWASP Top 10).  
-Je l’ai utilisé comme **base d’apprentissage** pour concevoir et tester un **pipeline CI/CD sécurisé** **de bout en bout**.
+# 🚀 **PyGoat — Pipeline CI/CD DevSecOps**
 
----
-
-## 🚀 Objectif
-
-Mettre en place un pipeline **GitHub Actions** complet pour :
-- **Linting & IaC Security** : Vérifier la qualité des fichiers Terraform et Kubernetes avec `tflint`, `kube-linter` et **Checkov**.
-- **Build & Deploy** : Déployer l’application sur un cluster **Kubernetes**.
-- **Tests de sécurité automatisés** :
-  - **SAST** : Analyse statique via **SonarQube**
-  - **SCA** : Scan des dépendances et de l’image Docker via **Trivy**
-  - **DAST** : Tests dynamiques via **OWASP ZAP**
-- **Reporting** : Génération de rapports de vulnérabilités après chaque run.
+**Contexte**
+Ce projet est basé sur **PyGoat**, une application Django volontairement vulnérable pour pratiquer la détection des failles **OWASP Top 10**.
+Je l’ai utilisée comme **terrain de jeu** pour construire un **pipeline CI/CD DevSecOps complet**, du **lint** au **déploiement Kubernetes**, avec promotion **staging → production**.
 
 ---
 
-## ⚙️ Technologies utilisées
+## 🎯 **Objectif**
 
-- **GitHub Actions** (CI/CD)
-- **Terraform**, **Checkov**
-- **Kubernetes**, **kube-linter**
-- **SonarQube**, **Trivy**, **OWASP ZAP**
-- **Docker**
+Mettre en place une chaîne GitHub Actions **sécurisée** et **automatisée** pour :
 
----
-
-## 🗂️ Structure du projet
-
-- `/ci` : fichiers workflows GitHub Actions
-- `/terraform` : fichiers Terraform (provisionning EKS ou cluster K8s)
-- `/k8s` : manifests Kubernetes
-- `/reports` : exemples de rapports (lint, checkov, SAST, SCA, DAST)
+* ✅ **Lint & Security IaC** : `TFLint`, `Terraform fmt`, `validate`, `Checkov`, `kube-linter`
+* ✅ **SAST** : Analyse statique de code avec **SonarQube**
+* ✅ **Tests unitaires** : `pytest` & `python manage.py test`
+* ✅ **SCA** : Scan dépendances & image Docker via **Trivy**
+* ✅ **DAST** : Tests dynamiques avec **OWASP ZAP**
+* ✅ **Build & Push** Docker : Image `staging-latest` sur **Docker Hub**
+* ✅ **Déploiement Kubernetes** : staging **automatique** + promotion vers **prod**
+* ✅ **Reporting** : Artefacts CI (rapports HTML, JSON)
 
 ---
 
-## ✅ Résultat
+## ⚙️ **Architecture du Workflow**
 
-Chaque push ou pull request déclenche :
-- Lint & audit IaC automatiques
-- Build & push de l’image Docker après scan sécurité
-- Déploiement automatique sur Kubernetes
-- Scan dynamique OWASP ZAP en conteneur isolé
-- Stockage des rapports en artefacts
+| Branche   | Actions                                                                          | Résultat                     |
+| --------- | -------------------------------------------------------------------------------- | ---------------------------- |
+| `staging` | Lint → Tests → Build → Scan → Push image `staging-latest` → Deploy staging → ZAP | Déploiement sur `staging`    |
+| `main`    | Promote → Retag image `prod-<SHA>` → Deploy prod                                 | Déploiement sur `production` |
 
-Cela me permet de pratiquer le **« Shift Left Security »** **réellement**, du code jusqu’au cluster Cloud.
-
-
-## 🎓 Certifications
-
-- **Certified Kubernetes Administrator (CKA)**
-- **AWS Solutions Architect Associate**
-- **Cisco Ethical Hacker**
+🔗 **Promotion en prod** :
+Le job **`promote`** tire l’image `staging-latest`, la retague en `prod-<commit-sha>` puis la pousse sur Docker Hub pour le namespace **prod**.
 
 ---
 
-## 👨‍💻 Crédits
+## 🧩 **Tech Stack**
 
-L’application **PyGoat** est développée par [adeyosemanputra](https://github.com/adeyosemanputra/pygoat).  
-Ce fork est **uniquement à but pédagogique** pour démontrer un pipeline **CI/CD DevSecOps** automatisé.
-
----
-
-## 📌 Liens
-
-- Repo original : [PyGoat](https://github.com/adeyosemanputra/pygoat)
-- Mon LinkedIn : [www.linkedin.com/in/fabrice-tsafack](https://www.linkedin.com/in/fabrice-tsafack)
-- Contact : ronicefabrice@gmail.com
+* **GitHub Actions** (CI/CD)
+* **Terraform**, **Checkov**, **TFLint**
+* **Kubernetes**, **kube-linter**
+* **SonarQube**, **Trivy**, **OWASP ZAP**
+* **Docker**, **Gunicorn**
 
 ---
 
-## 📢 Licence
+## 📂 **Structure du repo**
 
-Usage uniquement à des fins d’entraînement et de démonstration.  
-Contributions open source toujours les bienvenues !
+```
+├── .github/workflows/   # Pipelines CI/CD
+├── terraform/           # Fichiers Terraform (EKS)
+├── manifests/           # Déploiements & Services Kubernetes
+├── scripts/             # Scripts utilitaires (ex: install Docker)
+├── reports/             # Artefacts générés (lint, SAST, SCA, DAST)
+├── requirements.txt     # Dépendances Python
+└── manage.py            # Application Django
+```
+
+---
+
+## ✅ **Bonnes pratiques appliquées**
+
+* **Shift Left Security** : Sécurité intégrée dès le commit
+* **Scans multi-niveaux** : Code, dépendances, conteneur, runtime
+* **Secrets & credentials** : Gestion via `secrets` GitHub
+* **Promotion contrôlée** : Seul un merge `staging` → `main` déclenche la prod
+* **Artefacts versionnés** : Rapports conservés après chaque pipeline
+
+---
+
+## 🏅 **Certifications**
+
+* **CKA — Certified Kubernetes Administrator**
+* **AWS Solutions Architect Associate**
+* **Cisco Ethical Hacker**
+
+---
+
+## 📢 **Crédits**
+
+✅ **App de base** : [PyGoat](https://github.com/adeyosemanputra/pygoat)
+✅ **Auteur du pipeline** : Fabrice Tsafack (fork à usage pédagogique)
+
+---
+
+## 🔗 **Ressources**
+
+* Docker Hub : `docker.io/<DOCKER_USERNAME>/pygoat`
+* [Profil LinkedIn](https://www.linkedin.com/in/fabrice-tsafack)
+* Contact : [ronicefabrice@gmail.com](mailto:ronicefabrice@gmail.com)
+
+---
+
+## ⚖️ **Licence**
+
+Usage uniquement pour **formation DevSecOps** et **démonstration technique**.
+Contributions bienvenues ! 🚀✨
+
+

@@ -6,6 +6,8 @@ on:
       - staging
       - main
   
+    paths-ignore:
+      - 'README.md'
 jobs:
   lint:
     if: github.ref == 'refs/heads/staging'
