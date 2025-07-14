@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: pygoat
-          image: ${{ secrets.DOCKER_USERNAME }}/pygoat:staging-latest
+          image: leberi/pygoat:staging-latest
           imagePullPolicy: Always
           command: ["gunicorn"]
           args: ["--bind", "0.0.0.0:8000", "pygoat.wsgi:application"]
