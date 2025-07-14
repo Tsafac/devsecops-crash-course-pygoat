@@ -1,23 +1,18 @@
 
-FROM python:3.11.0b1-buster
+FROM python:3.11-slim-bookworm
 
 # Set work directory
 WORKDIR /app
 
 # Install system dependencies
-RUN apt-get update && apt-get install --no-install-recommends -y \
-    dnsutils \
-    libpq-dev \
-    python3-dev \
- && apt-get clean \
- && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && \
+    apt-get install --no-install-recommends -y dnsutils libpq-dev python3-dev && \
+    rm -rf /var/lib/apt/lists/*
+
 
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
-
-# Install pip
-RUN python -m pip install --no-cache-dir pip==22.0.4
 
 # Copy requirements and install them
 COPY requirements.txt .
