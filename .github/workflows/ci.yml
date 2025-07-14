@@ -204,8 +204,8 @@ jobs:
       - name: push to docker hub
         if: success()
         run: | 
-          docker tag pygoat:staging-${{github.sha}} ${{ secrets.DOCKER_USERNAME }}/pygoat:staging-${{github.sha}}
-          docker push ${{ secrets.DOCKER_USERNAME }}/pygoat:staging-${{github.sha}}
+          docker tag pygoat:staging-${{github.sha}} ${{ secrets.DOCKER_USERNAME }}/pygoat:staging-latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/pygoat:staging-latest
 
   deploy_staging:
      if: github.ref == 'refs/heads/staging'
@@ -314,8 +314,8 @@ jobs:
       - name: Pull Docker Image
         run: |
           docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-          docker pull ${{ secrets.DOCKER_USERNAME }}/pygoat:staging-${{github.sha}}
-          docker tag ${{ secrets.DOCKER_USERNAME }}/pygoat:staging-${{github.sha}} pygoat:prod-${{github.sha}}
+          docker pull ${{ secrets.DOCKER_USERNAME }}/pygoat:staging-latest
+          docker tag ${{ secrets.DOCKER_USERNAME }}/pygoat:staging-latest pygoat:prod-${{github.sha}}
           docker push ${{ secrets.DOCKER_USERNAME }}/pygoat:prod-${{github.sha}}
         
 
@@ -351,7 +351,7 @@ jobs:
              kubectl delete service pygoat-service -n prod || true
              cd /home/ubuntu/manifests/manifests
              kubectl create ns prod || true
-             sed -i "s|staging-\${{ github.sha }}|prod-${{ github.sha }}|g" manifests/app-deploy.yaml
+             sed -i "s|staging-latest|prod-${{ github.sha }}|g" manifests/app-deploy.yaml
              kubectl apply -f app-deploy.yaml -n prod
              kubectl apply -f app-svc.yaml -n prod
              sleep 10
