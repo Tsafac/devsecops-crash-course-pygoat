@@ -313,9 +313,11 @@ jobs:
     steps:
       - name: Pull Docker Image
         run: |
+          set -e
           docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
           docker pull ${{ secrets.DOCKER_USERNAME }}/pygoat:staging-latest
-          docker tag ${{ secrets.DOCKER_USERNAME }}/pygoat:staging-latest pygoat:prod-${{github.sha}}
+          docker tag ${{ secrets.DOCKER_USERNAME }}/pygoat:staging-latest ${{ secrets.DOCKER_USERNAME }}/pygoat:prod-${{ github.sha }}
+          docker images
           docker push ${{ secrets.DOCKER_USERNAME }}/pygoat:prod-${{github.sha}}
         
 
