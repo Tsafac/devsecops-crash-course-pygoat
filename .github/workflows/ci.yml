@@ -208,7 +208,7 @@ jobs:
       - name: Upload SBOM report
         uses: actions/upload-artifact@v4
         with:
-          name: sbom-report
+          name: sbom
           path: sbom.json
       
       - name: login to docker hub
@@ -366,16 +366,17 @@ jobs:
            key: ${{ secrets.SSH_KEY }}
            port: ${{ secrets.PORT }}
            script: |
-             kubectl delete deployment pygoat-deployment -n prod|| true
+             kubectl delete deployment pygoat-deployment -n prod || true
              kubectl delete service pygoat-service -n prod || true
+             kubectl get pods -n staging -l app=pygoat -o name | xargs -I {} kubectl delete {} -n staging --grace-period=0 --force || true
              cd /home/ubuntu/manifests/manifests
              kubectl create ns prod || true
-             sed -i "s|staging-latest|prod-${{ github.sha }}|g" manifests/app-deploy.yaml
+             sed -i "s|\${{ github.sha }}|${{ github.sha }}|g" app-deploy.yaml
              kubectl apply -f app-deploy.yaml -n prod
              kubectl apply -f app-svc.yaml -n prod
              sleep 10
-             kubectl get pods -o wide
-             kubectl get svc
+             kubectl get pods -n prod -o wide
+             kubectl get svc -n prod
 
                   
           
