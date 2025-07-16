@@ -203,16 +203,13 @@ jobs:
 
       - name: Scan Docker Image with Syft
         run: |
-          syft pygoat:staging-${{ github.sha }} -o html > sbom.html
           syft pygoat:staging-${{github.sha}} -o cyclonedx-json > sbom.json
 
       - name: Upload SBOM report
         uses: actions/upload-artifact@v4
         with:
           name: sbom
-          path: |
-            sbom.html
-            sbom.json
+          path: sbom.json
       
       - name: login to docker hub
         uses: docker/login-action@v2
