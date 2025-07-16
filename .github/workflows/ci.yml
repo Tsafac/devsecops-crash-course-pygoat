@@ -203,7 +203,7 @@ jobs:
 
       - name: Scan Docker Image with Syft
         run: |
-          syft pygoat:staging-${{github.sha}} -o json > sbom.json
+          syft pygoat:staging-${{github.sha}} -o cyclonedx-json > sbom.json
 
       - name: Upload SBOM report
         uses: actions/upload-artifact@v4
@@ -251,16 +251,17 @@ jobs:
            key: ${{ secrets.SSH_KEY }}
            port: ${{ secrets.PORT }}
            script: |
-             kubectl delete deployment pygoat-deployment -n staging|| true
-             kubectl delete service pygoat-service -n staging|| true
+             kubectl delete deployment pygoat-deployment -n staging || true
+             kubectl delete service pygoat-service -n staging || true
+             kubectl get pods -n staging -l app=pygoat -o name | xargs -I {} kubectl delete {} -n staging --grace-period=0 --force || true
              cd /home/ubuntu/manifests/manifests
              kubectl create ns staging || true
-             sed -i "s|\${{ github.sha }}|${{ github.sha }}|g" manifests/app-deploy.yaml
+             sed -i "s|\${{ github.sha }}|${{ github.sha }}|g" app-deploy.yaml
              kubectl apply -f app-deploy.yaml -n staging
              kubectl apply -f app-svc.yaml -n staging
              sleep 10
-             kubectl get pods -o wide
-             kubectl get svc
+             kubectl get pods -n staging -o wide 
+             kubectl get svc -n staging
 
   dast:
         if: github.ref == 'refs/heads/staging'
