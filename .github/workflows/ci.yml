@@ -231,9 +231,6 @@ jobs:
           DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' "$IMAGE")
           echo "digest=$DIGEST" >> $GITHUB_OUTPUT
 
-      - name: Debug digest
-        run: echo "Resolved digest: ${{ steps.image_digest.outputs.digest }}"
-
       
       - name: Install Cosign
         run: |
