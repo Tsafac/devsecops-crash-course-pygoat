@@ -212,9 +212,14 @@ jobs:
           path: sbom.json
 
       - name: Install Cosign
-        uses: sigstore/cosign-installer@v2.2.3
-        with:
-          consign-release: 'v2.2.3'
+        run: |
+          COSIGN_VERSION="v2.2.3"
+          curl -sSL -Lo cosign "https://github.com/sigstore/cosign/releases/download/${COSIGN_VERSION}/cosign-linux-amd64"
+          chmod +x cosign
+          sudo mv cosign /usr/local/bin/cosign
+
+      - name: Check cosign version
+        run: cosign version
 
       - name: Sign Docker Image and Sbom.json
         run: |
@@ -266,9 +271,14 @@ jobs:
            target: "/home/ubuntu/manifests"
 
        - name: Install Cosign
-         uses: sigstore/cosign-installer@v2.2.3
-         with:
-          cosign-release: 'v2.2.3'
+         run: |
+           COSIGN_VERSION="v2.2.3"
+           curl -sSL -Lo cosign "https://github.com/sigstore/cosign/releases/download/${COSIGN_VERSION}/cosign-linux-amd64"
+           chmod +x cosign
+           sudo mv cosign /usr/local/bin/cosign
+
+       - name: Check cosign version
+         run: cosign version
 
        - name: Verify Docker Image 
          run: |
