@@ -211,6 +211,26 @@ jobs:
           name: sbom
           path: sbom.json
 
+      
+      - name: login to docker hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: push to docker hub
+        if: success()
+        run: | 
+          docker tag pygoat:staging-${{ github.sha }} ${{ secrets.DOCKER_USERNAME }}/pygoat:staging-${{ github.sha }}
+          docker push ${{ secrets.DOCKER_USERNAME }}/pygoat:staging-${{ github.sha }}
+
+      - name: Get Docker Image Digest
+        id: image_digest
+        run: |
+          DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' ${{ secrets.DOCKER_USERNAME }}/pygoat:staging-${{ github.sha }})
+          echo "digest=${DIGEST}" >> "$GITHUB_OUTPUT"
+
+      
       - name: Install Cosign
         run: |
           COSIGN_VERSION="v2.2.3"
@@ -222,13 +242,16 @@ jobs:
         run: cosign version
 
       - name: Sign Docker Image and Sbom.json
-        run: |
-          cosign sign --yes --key env://COSIGN_PRIVATE_KEY pygoat:staging-${{github.sha}}  > cosign-verif-image.txt
-          sleep: 10
-          cosign sign-blob --yes --key env://COSIGN_PRIVATE_KEY --output-signature sbom.sig --output-certificate sbom.cert sbom.json 
         env:
           COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
           COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
+        run: |
+          cosign sign --yes --key env://COSIGN_PRIVATE_KEY "${{ steps.image_digest.outputs.digest }}" > cosign-verif-image.txt
+          cosign sign-blob --yes --key env://COSIGN_PRIVATE_KEY \
+            --output-signature sbom.sig \
+            --output-certificate sbom.cert \
+            sbom.json
+
 
       - name: Upload Cosign Image Verification Report
         uses: actions/upload-artifact@v4
@@ -238,18 +261,6 @@ jobs:
             sbom.sig
             sbom.cert
             cosign-verif-image.txt
-      
-      - name: login to docker hub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-
-      - name: push to docker hub
-        if: success()
-        run: | 
-          docker tag pygoat:staging-${{github.sha}} ${{ secrets.DOCKER_USERNAME }}/pygoat:staging-latest
-          docker push ${{ secrets.DOCKER_USERNAME }}/pygoat:staging-latest
 
   deploy_staging:
      if: github.ref == 'refs/heads/staging'
@@ -281,10 +292,11 @@ jobs:
          run: cosign version
 
        - name: Verify Docker Image 
-         run: |
-           cosign verify --key env://COSIGN_PUB_KEY pygoat:staging-${{github.sha}} > cosign-image-verif.txt
          env: 
            COSIGN_PUB_KEY: ${{ secrets.COSIGN_PUB_KEY }}
+         run: |
+           cosign verify --key env://COSIGN_PUB_KEY "${{ steps.image_digest.outputs.digest }}" > cosign-image-verif.txt
+
 
        - name: Upload Cosign Image Verification Report
          uses: actions/upload-artifact@v4
