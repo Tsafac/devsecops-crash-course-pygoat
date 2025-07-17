@@ -212,9 +212,9 @@ jobs:
           path: sbom.json
 
       - name: Install Cosign
-        uses: sigstore/cosign-installer@v3.1.1
+        uses: sigstore/cosign-installer@v2.2.3
         with:
-          consign-release: 'v3.1.1'
+          consign-release: 'v2.2.3'
 
       - name: Sign Docker Image and Sbom.json
         run: |
@@ -266,9 +266,9 @@ jobs:
            target: "/home/ubuntu/manifests"
 
        - name: Install Cosign
-         uses: sigstore/cosign-installer@v3.1.1
+         uses: sigstore/cosign-installer@v2.2.3
          with:
-          cosign-release: 'v3.1.1'
+          cosign-release: 'v2.2.3'
 
        - name: Verify Docker Image 
          run: |
