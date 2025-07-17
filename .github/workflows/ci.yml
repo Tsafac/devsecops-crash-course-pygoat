@@ -227,8 +227,12 @@ jobs:
       - name: Get Docker Image Digest
         id: image_digest
         run: |
-          DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' ${{ secrets.DOCKER_USERNAME }}/pygoat:staging-${{ github.sha }})
-          echo "digest=${DIGEST}" >> "$GITHUB_OUTPUT"
+          IMAGE=${{ secrets.DOCKER_USERNAME }}/pygoat:staging-${{ github.sha }}
+          DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' "$IMAGE")
+          echo "digest=$DIGEST" >> $GITHUB_OUTPUT
+
+      - name: Debug digest
+        run: echo "Resolved digest: ${{ steps.image_digest.outputs.digest }}"
 
       
       - name: Install Cosign
