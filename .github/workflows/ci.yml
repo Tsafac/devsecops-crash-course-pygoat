@@ -342,23 +342,6 @@ jobs:
            name: cosign-image-verif
            path: cosign-image-verif.txt
 
-       - name: Verify Signed SBOM
-         run: |
-           cosign verify-blob \
-             --signature sbom.sig \
-             --certificate sbom.cert \
-             sbom.json > cosign-sbom-verif.txt
-
-       - name: Upload Cosign SBOM Verification Report
-         uses: actions/upload-artifact@v4
-         with:
-           name: cosign-sbom-verif
-           path: |
-             sbom.sig
-             sbom.cert
-             cosign-sbom-verif.txt
-
-
     
        - name: Apply manifests via SSH
          uses: appleboy/ssh-action@master
