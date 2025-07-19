@@ -319,8 +319,8 @@ jobs:
        - name: Verify Docker Image 
          env: 
            COSIGN_PUB_KEY: ${{ secrets.COSIGN_PUB_KEY }}
+           IMAGE_DIGEST: ${{ needs.build_and_sca_image.outputs.image_digest }}
          run: |
-           IMAGE_DIGEST="${{ needs.build_and_sca_image.outputs.image_digest }}"
            echo "Verifying $IMAGE_DIGEST"
            cosign verify --key env://COSIGN_PUB_KEY "$IMAGE_DIGEST" > cosign-image-verif.txt
 
