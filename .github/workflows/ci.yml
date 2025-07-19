@@ -231,7 +231,8 @@ jobs:
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
         run: |
-          IMAGE="$DOCKER_USERNAME/pygoat:staging-$GITHUB_SHA"
+          IMAGE="docker.io/${DOCKER_USERNAME}/pygoat:staging-${GITHUB_SHA}"
+          docker pull "$IMAGE"
           DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' "$IMAGE")
           echo "Resolved digest: $DIGEST"
           echo "digest=$DIGEST" >> "$GITHUB_OUTPUT"
