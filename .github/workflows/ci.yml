@@ -159,7 +159,6 @@ jobs:
     if: github.ref == 'refs/heads/staging'
     runs-on: ubuntu-latest
     outputs:
-       image_digest: ${{ steps.image_digest.outputs.digest }}
     needs: sca_dependancies
 
     steps:
@@ -317,13 +316,26 @@ jobs:
        - name: Check cosign version
          run: cosign version
 
-       - name: Verify Docker Image 
-         env: 
-           COSIGN_PUB_KEY: ${{ secrets.COSIGN_PUB_KEY }}
-           IMAGE_DIGEST: ${{ needs.build_and_sca_image.outputs.image_digest }}
+       - name: Pull and Inspect Docker Image
+         id: verify_digest
+         env:
+           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
          run: |
-           echo "Verifying $IMAGE_DIGEST"
-           cosign verify --key env://COSIGN_PUB_KEY "$IMAGE_DIGEST" > cosign-image-verif.txt
+           IMAGE="docker.io/${DOCKER_USERNAME}/pygoat:staging-${GITHUB_SHA}"
+           echo "Pulling image: $IMAGE"
+           docker pull "$IMAGE"
+
+           DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' "$IMAGE")
+           echo "Resolved digest: $DIGEST"
+           echo "digest=$DIGEST" >> "$GITHUB_OUTPUT"
+
+
+       - name: Verify Docker Image Signature
+         env:
+           COSIGN_PUB_KEY: ${{ secrets.COSIGN_PUB_KEY }}
+         run: |
+           cosign verify --key env://COSIGN_PUB_KEY "${{ steps.verify_digest.outputs.digest }}" > cosign-image-verif.txt
+
 
        - name: Upload Cosign Image Verification Report
          uses: actions/upload-artifact@v4
