@@ -290,11 +290,12 @@ jobs:
 
        - name: Move Artifacts
          run: |
-           cp ./artifacts/sbom.json .
-           cp ./artifacts/sbom.sig .
-           cp ./artifacts/sbom.cert .
+           find ./artifacts -name "sbom.*" -exec cp {} . \; 
 
-    
+       - name: List downloaded artifacts
+         run: ls -R ./artifacts
+
+
        - name: Upload manifests via SCP
          uses: appleboy/scp-action@master
          with:
@@ -327,7 +328,7 @@ jobs:
          uses: actions/upload-artifact@v4
          with:
            name: cosign-image-verif
-           path: cosign-image-verif.json
+           path: cosign-image-verif.txt
 
        - name: Verify Signed SBOM
 
