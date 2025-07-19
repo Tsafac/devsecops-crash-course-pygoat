@@ -251,7 +251,7 @@ jobs:
           COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
           COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
         run: |
-          cosign sign --yes --key env://COSIGN_PRIVATE_KEY "${{ steps.image_digest.outputs.digest }}" > cosign-verif-image.txt
+          cosign sign --yes --key env://COSIGN_PRIVATE_KEY "${{ steps.image_digest.outputs.digest }}" > cosign-Sign-image.txt
           cosign sign-blob --yes --key env://COSIGN_PRIVATE_KEY \
             --output-signature sbom.sig \
             --output-certificate sbom.cert \
@@ -265,7 +265,7 @@ jobs:
           path: |
              sbom.sig
              sbom.cert
-             cosign-verif-image.txt
+             cosign-Sign-image.txt
 
   deploy_staging:
      if: github.ref == 'refs/heads/staging'
@@ -359,7 +359,7 @@ jobs:
              sed -i "s|\${{ github.sha }}|${{ github.sha }}|g" app-deploy.yaml
              kubectl apply -f app-deploy.yaml -n staging
              kubectl apply -f app-svc.yaml -n staging
-             sleep 10
+             sleep 30
              kubectl get pods -n staging -o wide 
              kubectl get svc -n staging
 
