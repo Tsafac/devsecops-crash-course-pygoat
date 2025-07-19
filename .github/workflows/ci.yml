@@ -343,12 +343,8 @@ jobs:
            path: cosign-image-verif.txt
 
        - name: Verify Signed SBOM
-
-         env:
-           COSIGN_PUB_KEY: ${{ secrets.COSIGN_PUB_KEY }}
          run: |
            cosign verify-blob \
-             --key env://COSIGN_PUB_KEY \
              --signature sbom.sig \
              --certificate sbom.cert \
              sbom.json > cosign-sbom-verif.txt
