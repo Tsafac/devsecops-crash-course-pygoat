@@ -158,6 +158,8 @@ jobs:
   build_and_sca_image:
     if: github.ref == 'refs/heads/staging'
     runs-on: ubuntu-latest
+    outputs:
+       image_digest: ${{ steps.image_digest.outputs.digest }}
     needs: sca_dependancies
 
     steps:
@@ -262,9 +264,9 @@ jobs:
         with:
           name: cosign-verif-image
           path: |
-            sbom.sig
-            sbom.cert
-            cosign-verif-image.txt
+             sbom.sig
+             sbom.cert
+             cosign-verif-image.txt
 
   deploy_staging:
      if: github.ref == 'refs/heads/staging'
@@ -273,6 +275,24 @@ jobs:
 
      steps:
        - uses: actions/checkout@v4
+
+       - name: Download Cosign Artifacts
+         uses: actions/download-artifact@v4
+         with:
+           name: cosign-verif-image
+           path: ./artifacts
+
+       - name: Download SBOM
+         uses: actions/download-artifact@v4
+         with:
+           name: sbom
+           path: ./artifacts
+
+       - name: Move Artifacts
+         run: |
+           cp ./artifacts/sbom.json .
+           cp ./artifacts/sbom.sig .
+           cp ./artifacts/sbom.cert .
 
     
        - name: Upload manifests via SCP
@@ -299,15 +319,36 @@ jobs:
          env: 
            COSIGN_PUB_KEY: ${{ secrets.COSIGN_PUB_KEY }}
          run: |
-           cosign verify --key env://COSIGN_PUB_KEY "${{ steps.image_digest.outputs.digest }}" > cosign-image-verif.txt
-
+           IMAGE_DIGEST="${{ needs.build_and_sca_image.outputs.image_digest }}"
+           echo "Verifying $IMAGE_DIGEST"
+           cosign verify --key env://COSIGN_PUB_KEY "$IMAGE_DIGEST" > cosign-image-verif.txt
 
        - name: Upload Cosign Image Verification Report
          uses: actions/upload-artifact@v4
          with:
            name: cosign-image-verif
            path: cosign-image-verif.json
-           
+
+       - name: Verify Signed SBOM
+
+         env:
+           COSIGN_PUB_KEY: ${{ secrets.COSIGN_PUB_KEY }}
+         run: |
+           cosign verify-blob \
+             --key env://COSIGN_PUB_KEY \
+             --signature sbom.sig \
+             --certificate sbom.cert \
+             sbom.json > cosign-sbom-verif.txt
+
+       - name: Upload Cosign SBOM Verification Report
+         uses: actions/upload-artifact@v4
+         with:
+           name: cosign-sbom-verif
+           path: |
+             sbom.sig
+             sbom.cert
+             cosign-sbom-verif.txt
+
 
     
        - name: Apply manifests via SSH
