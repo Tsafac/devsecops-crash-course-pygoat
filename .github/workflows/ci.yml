@@ -158,7 +158,6 @@ jobs:
   build_and_sca_image:
     if: github.ref == 'refs/heads/staging'
     runs-on: ubuntu-latest
-    outputs:
     needs: sca_dependancies
 
     steps:
